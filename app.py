@@ -3,6 +3,8 @@ import random
 import numpy as np
 import math
 import pandas as pd
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 
 def getfile(filename):
 	f = open(filename, "r")
@@ -70,6 +72,47 @@ def getImportantData(data):
 	return (List,Ids)	
 
 l,i = getImportantData(df)
-print(l)	
-print(i)
+
+
+def most_similair(data, item_index, k):
+
+	vectorizer = TfidfVectorizer()
+	count_matrix = vectorizer.fit_transform(data)
+
+	similarity_scores = cosine_similarity(count_matrix)
+	index_similarity = similarity_scores[item_index]
+	non = [item_index]
+
+	print("ok")
+
+	i = 0
+	while i != k:
+
+		Max = -1
+		j = 0		
+
+		for x in index_similarity:
+			if j not in non:
+				if Max == -1:
+					Max = j	
+				else:
+					if(x > index_similarity[Max]):
+						Max = j	
+			j = j + 1
+
+		if max != -1:
+			i = i + 1 
+			non.append(Max)		
+	non.pop(0)				
+	return non
+
+similair = most_similair(l[:len(l)//10],0,5)	
+
+print(similair)
+
+print("i tested with : ",l[0],"\n")
+
+print("i got : \n")
+for x in similair:
+	print(l[x],"\n")
 
