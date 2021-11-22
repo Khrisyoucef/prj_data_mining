@@ -15,7 +15,7 @@ df = pd.read_csv('movies_metadata.csv',low_memory=False)
 
 
 
-colums = ['adult','genres','original_title','production_companies','tagline']
+colums = ['adult','genres','original_title','production_companies','tagline','id']
 
 def decodegenre(elem):
 	j = 5
@@ -44,6 +44,7 @@ def decodeproduction(elem):
 def getImportantData(data):
 
 	List = []
+	Ids = []
 	for x in range(0, data.shape[0]):
 
 		important_data = ""
@@ -64,8 +65,11 @@ def getImportantData(data):
 			important_data = important_data + data['tagline'][x] + " "		
 
 		List.append(important_data)
-	return List	
+		Ids.append(data['id'][x])
 
-l = getImportantData(df)
+	return (List,Ids)	
+
+l,i = getImportantData(df)
 print(l)	
+print(i)
 
