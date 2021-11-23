@@ -77,8 +77,8 @@ def getImportantData(data):
 	return (List,Ids)	
 
 l,i = getImportantData(df)
-#print(l)
-#print(i)
+#print(len(l))
+#print(len(i))
 
 
 
@@ -87,7 +87,9 @@ def most_similair(data, item_index, k):
 	vectorizer = TfidfVectorizer()
 	count_matrix = vectorizer.fit_transform(data)
 
+
 	similarity_scores = cosine_similarity(count_matrix)
+
 	index_similarity = similarity_scores[item_index]
 	non = [item_index]
 
@@ -156,10 +158,10 @@ rt,ids = read_ratings("ratings_small.csv")
 def get_movie_index(movie_id, list_movies):
 	index = 0
 	for x in list_movies:
-		if(movie_id.item() == x):
+		if(movie_id == x):
 			return index
 		index = index + 1 
-	
+
 	return -1		
 
 
@@ -195,33 +197,33 @@ def recomande(data,user_index,users_ratings,users_ids,movies_ids,simls,k):
 	user_ids = users_ids[user_index]
 	all_similairs = []
 	notes_finales = []
+	finales_ids = []
 
 
 	for i in range(0, len(user_ids)):
 		movie_id = user_ids[i]
 		movie_index = get_movie_index(movie_id,movies_ids)
-		print(movie_id)
-		print(movie_index)
-		similairs =  most_similair(data,movie_index,k)
-		all_similairs.append(similairs)
+		if(movie_index == -1):
+			all_similairs.append([])
+		else:		
+			similairs =  most_similair(data,movie_index,k)
+			all_similairs.append(similairs)	
 
 	print(all_similairs)	
 
-	for index in range(0, len(user_ids)):
-		movie = get_movie_index(user_ids[index],movies_ids)
-		note =[]
-		for j in range(0,len(all_similairs[index])):
-			note.append(simls[movie][j]*user_ratings[index])
-		notes_finales.append[note]	 
-
+	for index in range(0, len(all_similairs)):
+		movie2 = get_movie_index(user_ids[index],movies_ids)
+		for elem in all_similairs[index]:
+			movie = get_movie_index(elem,movies_ids) 
+			notes_finales.append(simls[movie2][movie]*user_ratings[index])
 	print(notes_finales)	
 
 			
 
 vectorizer = TfidfVectorizer()
-count_matrix = vectorizer.fit_transform(df)
+count_matrix = vectorizer.fit_transform(l[:len(l)//5])
 
 similarity_scores = cosine_similarity(count_matrix)
 
 
-recomande(df,0,rt,ids,i,similarity_scores,5)
+recomande(l[:len(l)//5],0,rt,ids,i[:len(i)//5],similarity_scores,5)
