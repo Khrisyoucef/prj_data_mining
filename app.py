@@ -72,6 +72,9 @@ def getImportantData(data):
 	return (List,Ids)	
 
 l,i = getImportantData(df)
+#print(l)
+#print(i)
+
 
 
 def most_similair(data, item_index, k):
@@ -83,7 +86,6 @@ def most_similair(data, item_index, k):
 	index_similarity = similarity_scores[item_index]
 	non = [item_index]
 
-	print("ok")
 
 	i = 0
 	while i != k:
@@ -106,13 +108,42 @@ def most_similair(data, item_index, k):
 	non.pop(0)				
 	return non
 
-similair = most_similair(l[:len(l)//10],0,5)	
+#similair = most_similair(l[:len(l)//10],0,5)	
 
-print(similair)
+#print("i tested with : ",l[0],"\n")
 
-print("i tested with : ",l[0],"\n")
+#print("i got : \n")
+#for x in similair:
+#	print(l[x],"\n")
 
-print("i got : \n")
-for x in similair:
-	print(l[x],"\n")
 
+def read_ratings(filename):
+
+	Ratings = []
+	ids = []
+	user_ids = []
+	user_ratings = []
+    
+	df = pd.read_csv(filename,low_memory=False)	
+
+	user_index = df['userId'][0]
+
+	for i in range(0, df.shape[0]):
+		this_index = df['userId'][i]
+		if(this_index != user_index):
+			ids.append(user_ids)
+			Ratings.append(user_ratings)
+			user_index = this_index
+			user_ids = [df['movieId'][i]]
+			user_ratings = [df['rating'][i]]
+			
+		else:
+			user_ids.append(df['movieId'][i])    	
+			user_ratings.append(df['rating'][i])
+
+	return (Ratings,ids)	
+
+rt,ids = read_ratings("ratings_small.csv") 	
+
+print(rt[2],"\n")
+print(ids[2],"\n")
