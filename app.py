@@ -66,9 +66,14 @@ def getImportantData(data):
 		if(not isinstance(data['tagline'][x],float)):
 			important_data = important_data + data['tagline'][x] + " "		
 
-		List.append(important_data)
-		Ids.append(data['id'][x])
+		movie_id = data['id'][x]
+		try:
+			Ids.append(int(movie_id))	    		
+		except ValueError:
+			Ids.append(-1)
 
+		List.append(important_data)	
+			
 	return (List,Ids)	
 
 l,i = getImportantData(df)
@@ -145,5 +150,78 @@ def read_ratings(filename):
 
 rt,ids = read_ratings("ratings_small.csv") 	
 
-print(rt[2],"\n")
-print(ids[2],"\n")
+#print(rt[2],"\n")
+#print(ids[2],"\n")
+
+def get_movie_index(movie_id, list_movies):
+	index = 0
+	for x in list_movies:
+		if(movie_id.item() == x):
+			return index
+		index = index + 1 
+	
+	return -1		
+
+
+def get_nmax(l,n):
+	i = 0
+	maxs = []
+
+	while i != n:
+		Max = -1 
+		j = 0
+		for x in l:
+			if j not in maxs:
+				if Max == -1:
+					Max = j
+				else:
+					if(x > l[Max]):
+						Max = j	
+			j = j + 1
+
+		if Max != -1 :
+			maxs.append(Max)
+		i = i +1
+
+	for u in range(len(maxs)):
+		maxs[u] = maxs[u] + maxs[u] + 1
+		u = u+1				
+	return maxs	
+
+
+
+def recomande(data,user_index,users_ratings,users_ids,movies_ids,simls,k):
+	user_ratings = users_ratings[user_index]
+	user_ids = users_ids[user_index]
+	all_similairs = []
+	notes_finales = []
+
+
+	for i in range(0, len(user_ids)):
+		movie_id = user_ids[i]
+		movie_index = get_movie_index(movie_id,movies_ids)
+		print(movie_id)
+		print(movie_index)
+		similairs =  most_similair(data,movie_index,k)
+		all_similairs.append(similairs)
+
+	print(all_similairs)	
+
+	for index in range(0, len(user_ids)):
+		movie = get_movie_index(user_ids[index],movies_ids)
+		note =[]
+		for j in range(0,len(all_similairs[index])):
+			note.append(simls[movie][j]*user_ratings[index])
+		notes_finales.append[note]	 
+
+	print(notes_finales)	
+
+			
+
+vectorizer = TfidfVectorizer()
+count_matrix = vectorizer.fit_transform(df)
+
+similarity_scores = cosine_similarity(count_matrix)
+
+
+recomande(df,0,rt,ids,i,similarity_scores,5)
