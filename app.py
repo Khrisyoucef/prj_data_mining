@@ -200,7 +200,7 @@ def recomande(data,user_index,users_ratings,users_ids,movies_ids,simls,k):
 	finales_ids = []
 
 
-	for i in range(0, len(user_ids)):
+	for i in range(1, len(user_ids)):
 		movie_id = user_ids[i]
 		movie_index = get_movie_index(movie_id,movies_ids)
 		if(movie_index == -1):
@@ -211,7 +211,7 @@ def recomande(data,user_index,users_ratings,users_ids,movies_ids,simls,k):
 
 	print(all_similairs)	
 
-	for index in range(0, len(all_similairs)):
+	for index in range(1, len(all_similairs)):
 		movie2 = get_movie_index(user_ids[index],movies_ids)
 		for elem in all_similairs[index]:
 			movie = get_movie_index(elem,movies_ids) 
