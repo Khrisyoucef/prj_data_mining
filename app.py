@@ -191,6 +191,37 @@ def get_nmax(l,n):
 	return maxs	
 
 
+def Nmaxelements(list1, N):
+    final_list = []
+
+    for i in range(0, N):
+        max1 = 0
+
+        for j in range(len(list1)):
+            if list1[j] > max1:
+                max1 = list1[j];
+
+        list1.remove(max1);
+        final_list.append(max1)
+
+    return final_list
+
+def Imaxelements(list1, N):
+    final_list = []
+
+    for i in range(0, N):
+        max1 = 0
+        indexMax = 0
+
+        for j in range(len(list1)):
+            if (list1[j] > max1 and (j not in final_list)) :
+                max1 = list1[j]
+                indexMax = j
+
+        final_list.append(indexMax)
+
+    return final_list
+
 
 def recomande(data,user_index,users_ratings,users_ids,movies_ids,simls,k):
 	user_ratings = users_ratings[user_index]
@@ -200,25 +231,38 @@ def recomande(data,user_index,users_ratings,users_ids,movies_ids,simls,k):
 	finales_ids = []
 
 
-	for i in range(1, len(user_ids)):
+	for i in range(0, len(user_ids)):
 		movie_id = user_ids[i]
 		movie_index = get_movie_index(movie_id,movies_ids)
 		if(movie_index == -1):
 			all_similairs.append([])
-		else:		
+		else:
 			similairs =  most_similair(data,movie_index,k)
-			all_similairs.append(similairs)	
+			all_similairs.append(similairs)
 
-	print(all_similairs)	
 
-	for index in range(1, len(all_similairs)):
+
+	for index in range(0, len(all_similairs)):
 		movie2 = get_movie_index(user_ids[index],movies_ids)
 		for elem in all_similairs[index]:
-			movie = get_movie_index(elem,movies_ids) 
-			notes_finales.append(simls[movie2][movie]*user_ratings[index])
-	print(notes_finales)	
+			notes_finales.append(simls[movie2][elem]*user_ratings[index])
 
-			
+	max_elements = Imaxelements(notes_finales,5)
+
+	flat_indexs = [item for sublist in all_similairs for item in sublist]
+
+	final_results = []
+
+	for x in max_elements:
+		final_results.append(flat_indexs[x])
+
+	return final_results
+
+
+
+
+
+
 
 vectorizer = TfidfVectorizer()
 count_matrix = vectorizer.fit_transform(l[:len(l)//5])
@@ -226,4 +270,8 @@ count_matrix = vectorizer.fit_transform(l[:len(l)//5])
 similarity_scores = cosine_similarity(count_matrix)
 
 
-recomande(l[:len(l)//5],0,rt,ids,i[:len(i)//5],similarity_scores,5)
+final_result = recomande(l[:len(l)//5],1,rt,ids,i[:len(i)//5],similarity_scores,5)
+
+print("je vous recomande :\n")
+for x in final_result :
+	print(l[x],"\n")
