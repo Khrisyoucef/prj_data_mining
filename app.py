@@ -235,7 +235,6 @@ def validation(data,train_ratings,train_ids,test_ids,movies_ids,k):
 	return count/len(train_ratings)
 
 
-
 validation(l[:len(l)//3],train_ratings,train_ids,test_ids,i[:len(i)//3],5)
 
 
