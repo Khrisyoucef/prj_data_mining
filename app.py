@@ -219,20 +219,20 @@ train_ids, test_ids = splitListList(ids)
 def validation(data,train_ratings,train_ids,test_ids,movies_ids,k):
 
 	count=0
-	listusersmovie=[]
+	listuserxmovie=[]
 
 	for x in range (0,len(train_ratings)):
-		listusersmovie.append(recomande(data,x,train_ratings,train_ids,movies_ids,5))
+		listuserxmovie.append(recomande(data,x,train_ratings,train_ids,movies_ids,5))
 		userx = test_ids[x]
 		print("user num: ",x,"\n")
-		for y in listusersmovie[x]:
+		for y in listuserxmovie[x]:
 			if y not in userx:
 				print("count rst : ", count,"y est ",y," liste de x est : ",userx,"\n")
 			else:
 				count +=1
 				print("count rst : ", count,"y est ",y," liste de x est : ",userx,"\n")
 				continue
-	return count/len(movies_ids)
+	return count/len(train_ratings)
 
 
 
