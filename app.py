@@ -1,58 +1,51 @@
 #encoding=utf8
-import random
-import numpy as np
-import math
+
+
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-def getfile(filename):
-	f = open(filename, "r")
-	L = f.readlines()
-	return L
-
-l = getfile("movies_metadata.csv")
-
-df = pd.read_csv('movies_metadata.csv',low_memory=False)
-
-
-
-colums = ['adult','genres','original_title','production_companies','tagline','id']
-
 def decodegenre(elem):
+
 	j = 5
 	sp = elem.split("'")
 	genre = []
+
 	while(j<len(sp)):
 		genre.append(sp[j])
-		j = j+6	
+		j = j+6
 	s = ''
+
 	for x in genre:
 		s = s+" "+x
-	return s	
+	return s
+
 
 def decodeproduction(elem):
+
 	j = 3
 	sp = elem.split("'")
 	prod = []
+
 	while(j<len(sp)):
 		prod.append(sp[j])
 		j = j+6
 	s = ''
+
 	for x in prod:
-		s = s+x
+		s = s+" "+x
 	return s
+
 
 def getImportantData(data):
 
 	List = []
 	Ids = []
+
 	for x in range(0, data.shape[0]):
-
 		important_data = ""
-
 		if(not isinstance(data['adult'][x],float)):
-			important_data = important_data+data['adult'][x]+ " "
+			important_data = important_data+data['adult'][x][0]+ " "
 
 		if(not isinstance(data['genres'][x],float)):
 			important_data = important_data + decodegenre(data['genres'][x]) + " "
@@ -61,68 +54,59 @@ def getImportantData(data):
 			important_data = important_data + data['original_title'][x] + " "
 
 		if(not isinstance(data['production_companies'][x],float)):
-			important_data = important_data + decodeproduction(data['production_companies'][x]) + " "	
+			important_data = important_data + decodeproduction(data['production_companies'][x]) + " "
 
 		if(not isinstance(data['tagline'][x],float)):
-			important_data = important_data + data['tagline'][x] + " "		
+			important_data = important_data + data['tagline'][x] + " "
 
 		movie_id = data['id'][x]
 		try:
-			Ids.append(int(movie_id))	    		
+			Ids.append(int(movie_id))
 		except ValueError:
 			Ids.append(-1)
+		List.append(important_data)
 
-		List.append(important_data)	
-			
-	return (List,Ids)	
-
-l,i = getImportantData(df)
-#print(len(l))
-#print(len(i))
+	return (List,Ids)
 
 
+def splitList(lis):
 
-def most_similair(data, item_index, k):
+	l  = len(lis)
+	l = l//3
+	return(lis[0:(2*l)],lis[(2*l):len(lis)])
 
-	vectorizer = TfidfVectorizer()
-	count_matrix = vectorizer.fit_transform(data)
+def splitListList(l):
 
+	train_finale = []
+	test_finale = []
 
-	similarity_scores = cosine_similarity(count_matrix)
+	for x in l:
+		train,test = splitList(x)
+		train_finale.append(train)
+		test_finale.append(test)
 
-	index_similarity = similarity_scores[item_index]
-	non = [item_index]
+	return (train_finale,test_finale)
 
+def Imaxelements(list1, N):
+	final_list = []
+	for i in range(0, N):
+		max1 = 0
+		indexMax = 0
+		for j in range(len(list1)):
+			if (list1[j] > max1 and (j not in final_list)) :
+				max1 = list1[j]
+				indexMax = j
+		final_list.append(indexMax)
+	return final_list
 
-	i = 0
-	while i != k:
+def get_movie_index(movie_id, list_movies):
+	index = 0
 
-		Max = -1
-		j = 0		
-
-		for x in index_similarity:
-			if j not in non:
-				if Max == -1:
-					Max = j	
-				else:
-					if(x > index_similarity[Max]):
-						Max = j	
-			j = j + 1
-
-		if max != -1:
-			i = i + 1 
-			non.append(Max)		
-	non.pop(0)				
-	return non
-
-#similair = most_similair(l[:len(l)//10],0,5)	
-
-#print("i tested with : ",l[0],"\n")
-
-#print("i got : \n")
-#for x in similair:
-#	print(l[x],"\n")
-
+	for x in list_movies:
+		if(movie_id == x):
+			return index
+		index = index + 1
+	return -1
 
 def read_ratings(filename):
 
@@ -130,9 +114,7 @@ def read_ratings(filename):
 	ids = []
 	user_ids = []
 	user_ratings = []
-    
-	df = pd.read_csv(filename,low_memory=False)	
-
+	df = pd.read_csv(filename,low_memory=False)
 	user_index = df['userId'][0]
 
 	for i in range(0, df.shape[0]):
@@ -143,104 +125,66 @@ def read_ratings(filename):
 			user_index = this_index
 			user_ids = [df['movieId'][i]]
 			user_ratings = [df['rating'][i]]
-			
+
 		else:
-			user_ids.append(df['movieId'][i])    	
+
+			user_ids.append(df['movieId'][i])
 			user_ratings.append(df['rating'][i])
 
-	return (Ratings,ids)	
+	return (Ratings,ids)
 
-rt,ids = read_ratings("ratings_small.csv") 	
+def most_similair(similarity_scores, item_index, k):
 
-#print(rt[2],"\n")
-#print(ids[2],"\n")
-
-def get_movie_index(movie_id, list_movies):
-	index = 0
-	for x in list_movies:
-		if(movie_id == x):
-			return index
-		index = index + 1 
-
-	return -1		
-
-
-def get_nmax(l,n):
+	index_similarity = similarity_scores[item_index]
+	non = [item_index]
 	i = 0
-	maxs = []
-
-	while i != n:
-		Max = -1 
+	while i != k:
+		Max = -1
 		j = 0
-		for x in l:
-			if j not in maxs:
+		for x in index_similarity:
+			if j not in non:
 				if Max == -1:
 					Max = j
 				else:
-					if(x > l[Max]):
-						Max = j	
+					if(x > index_similarity[Max]):
+						Max = j
 			j = j + 1
+		if max != -1:
+			i = i + 1
+			non.append(Max)
+	non.pop(0)
+	return non
 
-		if Max != -1 :
-			maxs.append(Max)
-		i = i +1
+"""print(l[:len(l)//100])
+similair = most_similair(l[:len(l)//10],2,5)
+print(similair)
+print("i tested with : ",l[0],"\n")
+print("i got : \n")
+for x in similair:
+	print(l[x],"\n")"""
 
-	for u in range(len(maxs)):
-		maxs[u] = maxs[u] + maxs[u] + 1
-		u = u+1				
-	return maxs	
+def recomande(data,user_index,users_ratings,users_ids,movies_ids,k):
 
+	vectorizer = TfidfVectorizer()
+	count_matrix = vectorizer.fit_transform(data)
 
-def Nmaxelements(list1, N):
-    final_list = []
+	simls = cosine_similarity(count_matrix)
 
-    for i in range(0, N):
-        max1 = 0
-
-        for j in range(len(list1)):
-            if list1[j] > max1:
-                max1 = list1[j];
-
-        list1.remove(max1);
-        final_list.append(max1)
-
-    return final_list
-
-def Imaxelements(list1, N):
-    final_list = []
-
-    for i in range(0, N):
-        max1 = 0
-        indexMax = 0
-
-        for j in range(len(list1)):
-            if (list1[j] > max1 and (j not in final_list)) :
-                max1 = list1[j]
-                indexMax = j
-
-        final_list.append(indexMax)
-
-    return final_list
-
-
-def recomande(data,user_index,users_ratings,users_ids,movies_ids,simls,k):
 	user_ratings = users_ratings[user_index]
 	user_ids = users_ids[user_index]
+
 	all_similairs = []
 	notes_finales = []
-	finales_ids = []
-
 
 	for i in range(0, len(user_ids)):
 		movie_id = user_ids[i]
 		movie_index = get_movie_index(movie_id,movies_ids)
+
 		if(movie_index == -1):
 			all_similairs.append([])
 		else:
-			similairs =  most_similair(data,movie_index,k)
+			similairs =  most_similair(simls,movie_index,k)
 			all_similairs.append(similairs)
-
-
 
 	for index in range(0, len(all_similairs)):
 		movie2 = get_movie_index(user_ids[index],movies_ids)
@@ -258,20 +202,40 @@ def recomande(data,user_index,users_ratings,users_ids,movies_ids,simls,k):
 
 	return final_results
 
+df = pd.read_csv('movies_metadata.csv',low_memory=False)
+colums = ['adult','genres','original_title','production_companies','tagline','id']
+l,i = getImportantData(df)
+rt,ids = read_ratings("ratings_small.csv")
+
+#on decoupe notre ratings de chaque utilisateur a des train data et test data
+train_ratings, test_ratings = splitListList(rt)
+train_ids, test_ids = splitListList(ids)
+
+#print("data ",l[0:5],"\n")
+#print("train_rating ", train_ratings[0:5],"\n")
+#print("train_ids  ",train_ids[0:5],"\n")
+#print ("recommande par id ",recomande(l[:len(l)//3],0,rt,ids,i[:len(i)//3],5),"\n")
+
+def validation(data,train_ratings,train_ids,test_ids,movies_ids,k):
+
+	count=0
+	listusersmovie=[]
+
+	for x in range (0,len(train_ratings)):
+		listusersmovie.append(recomande(data,x,train_ratings,train_ids,movies_ids,5))
+		userx = test_ids[x]
+		print("user num: ",x,"\n")
+		for y in listusersmovie[x]:
+			if y not in userx:
+				print("count rst : ", count,"y est ",y," liste de x est : ",userx,"\n")
+			else:
+				count +=1
+				print("count rst : ", count,"y est ",y," liste de x est : ",userx,"\n")
+				continue
+	return count/len(movies_ids)
 
 
 
+validation(l[:len(l)//3],train_ratings,train_ids,test_ids,i[:len(i)//3],5)
 
 
-
-vectorizer = TfidfVectorizer()
-count_matrix = vectorizer.fit_transform(l[:len(l)//5])
-
-similarity_scores = cosine_similarity(count_matrix)
-
-
-final_result = recomande(l[:len(l)//5],1,rt,ids,i[:len(i)//5],similarity_scores,5)
-
-print("je vous recomande :\n")
-for x in final_result :
-	print(l[x],"\n")
