@@ -166,7 +166,6 @@ def most_similair(similarity_scores, item_index, k):
 	non.pop(0)
 	return non
 
-
 def recomande(data,user_index,users_ratings,users_ids,movies_ids,k):
 
 	vectorizer = TfidfVectorizer()
@@ -206,6 +205,42 @@ def recomande(data,user_index,users_ratings,users_ids,movies_ids,k):
 
 	return final_results
 
+#cette fonction spécialement pour les nouveaux utilisateurs, tell que il nous donne une list de les films qu'il préfères
+#ensuite elle va retourner une liste des films recommendés
+def coldstart(data,movies_ids,listidmovie,k):
+
+	vectorizer = TfidfVectorizer()
+	count_matrix = vectorizer.fit_transform(data)
+	simls = cosine_similarity(count_matrix)
+
+	all_similairs = []
+	notes_finales = []
+
+	for i in range(0, len(listidmovie)):
+		movie_id = listidmovie[i]
+		movie_index = get_movie_index(movie_id,movies_ids)
+
+		if(movie_index == -1):
+			all_similairs.append([])
+		else:
+			similairs =  most_similair(simls,movie_index,k)
+			all_similairs.append(similairs)
+
+	for index in range(0, len(all_similairs)):
+		movie2 = get_movie_index(listidmovie[index],movies_ids)
+		for elem in all_similairs[index]:
+			notes_finales.append(simls[movie2][elem])
+
+	max_elements = Imaxelements(notes_finales,k)
+	flat_indexs = [item for sublist in all_similairs for item in sublist]
+	final_results = []
+
+	for x in max_elements:
+		final_results.append(flat_indexs[x])
+
+	return final_results
+
+
 def validation(data,train_ratings,train_ids,test_ids,movies_ids,k):
 
 	count=0
@@ -234,4 +269,11 @@ rt,ids = read_ratings("ratings_small.csv")
 train_ratings, test_ratings = splitListList(rt)
 train_ids, test_ids = splitListList(ids)
 
-validation(l[:len(l)//3],train_ratings,train_ids,test_ids,i[:len(i)//3],8)
+
+#print("coldstar result : ",coldstart(l[:len(l)//3],i[:len(i)//3],[4919,14313,5749,150],10))
+#print(validation(l[:len(l)//3],train_ratings,train_ids,test_ids,i[:len(i)//3],8))
+
+
+
+
+# 150 (id de 48 hours-- 11595 id de l'autre 48 id pour vérifier
