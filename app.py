@@ -231,7 +231,7 @@ def validation(data,train_ratings,train_ids,test_ids,movies_ids,k):
 			else:
 				count +=1
 				print("count rst : ", count,"y est ",y," liste de x est : ",userx,"\n")
-				continue
+				break
 	return count/len(train_ratings)
 
 
