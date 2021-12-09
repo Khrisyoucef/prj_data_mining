@@ -222,7 +222,7 @@ def validation(data,train_ratings,train_ids,test_ids,movies_ids,k):
 	listuserxmovie=[]
 
 	for x in range (0,len(train_ratings)):
-		listuserxmovie.append(recomande(data,x,train_ratings,train_ids,movies_ids,5))
+		listuserxmovie.append(recomande(data,x,train_ratings,train_ids,movies_ids,k))
 		userx = test_ids[x]
 		print("user num: ",x,"\n")
 		for y in listuserxmovie[x]:
@@ -235,6 +235,6 @@ def validation(data,train_ratings,train_ids,test_ids,movies_ids,k):
 	return count/len(train_ratings)
 
 
-validation(l[:len(l)//3],train_ratings,train_ids,test_ids,i[:len(i)//3],5)
+validation(l[:len(l)//3],train_ratings,train_ids,test_ids,i[:len(i)//3],10)
 
 
