@@ -5,6 +5,7 @@ import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
+#Cette fonction pour mettre les données des genres dans une liste sans les données inutiles pour la recommendation
 def decodegenre(elem):
 
 	j = 5
@@ -20,7 +21,7 @@ def decodegenre(elem):
 		s = s+" "+x
 	return s
 
-
+#Cette fonction pour mettre les données des productions dans une liste sans les données inutiles pour la recommendation
 def decodeproduction(elem):
 
 	j = 3
@@ -37,6 +38,7 @@ def decodeproduction(elem):
 	return s
 
 
+#Cette fonction pour vérivier chaque colonne de notre data en utilisant la fonction isinstance pour les types des données.
 def getImportantData(data):
 
 	List = []
@@ -68,13 +70,14 @@ def getImportantData(data):
 
 	return (List,Ids)
 
-
+# cette fonction pour diviser une liste donnée
 def splitList(lis):
 
 	l  = len(lis)
 	l = l//3
 	return(lis[0:(2*l)],lis[(2*l):len(lis)])
 
+# cette fonction pour diviser une liste d'une liste donnée
 def splitListList(l):
 
 	train_finale = []
@@ -87,11 +90,15 @@ def splitListList(l):
 
 	return (train_finale,test_finale)
 
+#Cette fonction pour donner N max d'une liste donnée
 def Imaxelements(list1, N):
+
 	final_list = []
+
 	for i in range(0, N):
 		max1 = 0
 		indexMax = 0
+
 		for j in range(len(list1)):
 			if (list1[j] > max1 and (j not in final_list)) :
 				max1 = list1[j]
@@ -99,6 +106,7 @@ def Imaxelements(list1, N):
 		final_list.append(indexMax)
 	return final_list
 
+#cette fonction pour récupérer l'index d'un film
 def get_movie_index(movie_id, list_movies):
 	index = 0
 
@@ -108,6 +116,8 @@ def get_movie_index(movie_id, list_movies):
 		index = index + 1
 	return -1
 
+#Cette fonction nous retourne une liste des utilisateurs et chaque case on a une liste des ratings
+#d'un utilisateur ainsi une liste avec le meme principe mais à la aulieu des ratings y'a les ids des films évalués
 def read_ratings(filename):
 
 	Ratings = []
@@ -133,6 +143,7 @@ def read_ratings(filename):
 
 	return (Ratings,ids)
 
+
 def most_similair(similarity_scores, item_index, k):
 
 	index_similarity = similarity_scores[item_index]
@@ -155,13 +166,6 @@ def most_similair(similarity_scores, item_index, k):
 	non.pop(0)
 	return non
 
-"""print(l[:len(l)//100])
-similair = most_similair(l[:len(l)//10],2,5)
-print(similair)
-print("i tested with : ",l[0],"\n")
-print("i got : \n")
-for x in similair:
-	print(l[x],"\n")"""
 
 def recomande(data,user_index,users_ratings,users_ids,movies_ids,k):
 
@@ -191,7 +195,7 @@ def recomande(data,user_index,users_ratings,users_ids,movies_ids,k):
 		for elem in all_similairs[index]:
 			notes_finales.append(simls[movie2][elem]*user_ratings[index])
 
-	max_elements = Imaxelements(notes_finales,5)
+	max_elements = Imaxelements(notes_finales,k)
 
 	flat_indexs = [item for sublist in all_similairs for item in sublist]
 
@@ -201,20 +205,6 @@ def recomande(data,user_index,users_ratings,users_ids,movies_ids,k):
 		final_results.append(flat_indexs[x])
 
 	return final_results
-
-df = pd.read_csv('movies_metadata.csv',low_memory=False)
-colums = ['adult','genres','original_title','production_companies','tagline','id']
-l,i = getImportantData(df)
-rt,ids = read_ratings("ratings_small.csv")
-
-#on decoupe notre ratings de chaque utilisateur a des train data et test data
-train_ratings, test_ratings = splitListList(rt)
-train_ids, test_ids = splitListList(ids)
-
-#print("data ",l[0:5],"\n")
-#print("train_rating ", train_ratings[0:5],"\n")
-#print("train_ids  ",train_ids[0:5],"\n")
-#print ("recommande par id ",recomande(l[:len(l)//3],0,rt,ids,i[:len(i)//3],5),"\n")
 
 def validation(data,train_ratings,train_ids,test_ids,movies_ids,k):
 
@@ -235,6 +225,13 @@ def validation(data,train_ratings,train_ids,test_ids,movies_ids,k):
 	return count/len(train_ratings)
 
 
-validation(l[:len(l)//3],train_ratings,train_ids,test_ids,i[:len(i)//3],10)
+df = pd.read_csv('movies_metadata.csv',low_memory=False)
+colums = ['adult','genres','original_title','production_companies','tagline','id']
+l,i = getImportantData(df)
+rt,ids = read_ratings("ratings_small.csv")
 
+#on decoupe notre ratings de chaque utilisateur a des train data et test data
+train_ratings, test_ratings = splitListList(rt)
+train_ids, test_ids = splitListList(ids)
 
+validation(l[:len(l)//3],train_ratings,train_ids,test_ids,i[:len(i)//3],8)
