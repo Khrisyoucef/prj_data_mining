@@ -270,8 +270,8 @@ train_ratings, test_ratings = splitListList(rt)
 train_ids, test_ids = splitListList(ids)
 
 
-#print("coldstar result : ",coldstart(l[:len(l)//3],i[:len(i)//3],[4919,14313,5749,150],10))
-#print(validation(l[:len(l)//3],train_ratings,train_ids,test_ids,i[:len(i)//3],8))
+#print("coldstar result : ",coldstart(l[:len(l)//3],i[:len(i)//3],[4919,14313,5749,150],5))
+#print(validation(l[:len(l)//3],train_ratings,train_ids,test_ids,i[:len(i)//3],5))
 
 
 
